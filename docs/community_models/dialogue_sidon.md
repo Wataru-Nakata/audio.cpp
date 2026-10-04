@@ -1,9 +1,9 @@
 # DialogueSidon
 
 DialogueSidon separates and restores a two-speaker conversation. The input is a
-mixture. The output is one clean 24 kHz track per speaker.
+16 kHz two-speaker mixture. The output is one clean 24 kHz track per speaker.
 
-It is a sibling of [Sidon](../models/sidon.md), not a variant. A w2v-BERT 2.0
+It is a sibling of [Sidon](../models/sidon.md). A w2v-BERT 2.0
 encoder conditions an 8-layer diffusion transformer. The transformer samples
 SSL-VAE latents for both speakers with DPM-Solver++. A snake decoder turns each
 speaker's latents into audio.
