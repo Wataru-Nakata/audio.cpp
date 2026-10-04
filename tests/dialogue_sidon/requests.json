@@ -1,0 +1,8 @@
+{
+  "requests": [
+    {"id": "cold", "audio": "../../assets/resources/four_speaker_short.wav"},
+    {"id": "warm01", "audio": "../../assets/resources/four_speaker_short.wav"},
+    {"id": "different_shape", "audio": "../../assets/resources/a.wav"},
+    {"id": "original_shape", "audio": "../../assets/resources/four_speaker_short.wav"}
+  ]
+}

@@ -71,6 +71,7 @@ Status labels:
 | `citrinet_asr` | Done | Pass | --- | --- | Pass |
 | `cohere_asr` | Done | Pass | Pass | --- | Pass (drift) |
 | `crisperwhisper` | Done | Pass | Pass | --- | Pass (drift) |
+| `dialogue_sidon` | Done | --- | Pass | --- | --- |
 | `fish_audio` | Done | Pass | --- | Pass | Pass |
 | `fun_asr_nano` | Done | Pass | --- | Pass | Pass |
 | `gigaam_asr` | Done | --- | Pass | Pass | --- |

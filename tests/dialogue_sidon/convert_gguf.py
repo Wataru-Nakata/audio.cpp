@@ -14,7 +14,7 @@ The converter folds the encoder's LoRA adapters and the decoder's weight norm,
 drops training-only modules, and fails on any tensor it does not recognize.
 It writes ``model.safetensors``, ``config.json`` and ``conversion_report.json``
 to ``--output-dir``; ``--gguf`` additionally packages a GGUF with
-``audiocpp_gguf`` once a ``dialogue_sidon`` model spec exists.
+``audiocpp_gguf`` with ``model_specs/dialogue_sidon.json``.
 """
 
 import argparse
@@ -69,29 +69,6 @@ HEAD_RENAMES = [(re.compile(pattern), replacement) for pattern, replacement in (
     (r"final_layer\.adaLN_modulation\.1\.(weight|bias)", r"final_layer.adaln.\1"),
     (r"final_layer\.linear\.weight", "final_layer.linear.weight"),
 )]
-
-# Pieces of the PyTorch inference path that audio.cpp has no ready module for.
-UNSUPPORTED = [
-    {
-        "component": "DPMSolverMultistepScheduler (dpmsolver++, linspace, linear betas 1e-4..0.02, v_prediction)",
-        "status": "missing",
-        "note": "VibeVoiceDPMSolverScheduler implements the same solver but rejects non-cosine beta schedules; "
-                "generalize it or add a model-local scheduler.",
-    },
-    {
-        "component": "DiT timestep embedder (cos|sin, 256 -> hidden, bias-free MLP)",
-        "status": "partial",
-        "note": "TimestepEmbeddingModule requires fc biases and an RMS weight; build it model-locally. "
-                "The converter emits diffusion_head.t_embedder.freqs for it.",
-    },
-    {
-        "component": "SSL-VAE snake decoder (latent_dim -> 1536 channels, strides 8/5/4/3, 24 kHz)",
-        "status": "partial",
-        "note": "Same blocks and tensor names as the Sidon v0.1 decoder, but SidonSnakeVocoderGraph hard-codes "
-                "1024 input channels and five strides; parameterize it from config.json.",
-    },
-]
-
 
 def load_lightning(path):
     checkpoint = torch.load(str(path), map_location="cpu", weights_only=False)
@@ -450,7 +427,6 @@ def convert(state, meta, lora_alpha):
         "mapping": dict(sorted(converter.mapping.items())),
         "derived": converter.derived,
         "dropped": {reason: names for reason, names in converter.dropped.items()},
-        "unsupported": UNSUPPORTED,
     }
     return converter.tensors, config, report
 
@@ -484,8 +460,6 @@ def main():
     dropped = sum(len(names) for names in report["dropped"].values())
     print(f"Converted {report['source_tensors']} source tensors: {report['output_tensors']} written, "
           f"{dropped} training-only dropped, {len(report['derived'])} derived")
-    for item in UNSUPPORTED:
-        print(f"  needs runtime work: {item['component']}")
 
     if args.gguf:
         command = [str(args.audiocpp_gguf), "--input", f"weights={weights}", "--output", str(args.gguf),

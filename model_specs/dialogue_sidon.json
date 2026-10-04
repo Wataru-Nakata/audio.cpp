@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "family": "dialogue_sidon",
+  "display_name": "DialogueSidon",
+  "description": "Two-speaker dialogue separation and restoration: a w2v-BERT 2.0 encoder conditions a diffusion transformer (DPM-Solver++) over SSL-VAE latents, decoded to one 24 kHz track per speaker.",
+  "category": "audio_tools",
+  "status": "experimental",
+  "tasks": [
+    "sep"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "sep": [
+      "stems"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "num_steps",
+        "type": "int",
+        "description": "DPM-Solver++ diffusion steps. The demo uses 30.",
+        "required": false,
+        "min": 1,
+        "max": 1000,
+        "default": 30
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Seed for the initial latent noise (torch CUDA randn stream); chunk i of a long input uses seed + i.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "normalize",
+        "type": "bool",
+        "description": "Scale each speaker to a 0.9 peak, as the demo's audio outputs do.",
+        "required": false,
+        "default": true
+      }
+    ],
+    "session": [],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "dialogue_sidon_f32",
+      "display_name": "DialogueSidon F32 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "DialogueSidon-GGUF",
+      "files": [
+        "DialogueSidon-GGUF/dialogue-sidon-f32.gguf"
+      ],
+      "strip_prefix": "DialogueSidon-GGUF"
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "dialogue_sidon_f32",
+    "tags": [
+      "Sep",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/community_models/dialogue_sidon.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {},
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    }
+  ]
+}
