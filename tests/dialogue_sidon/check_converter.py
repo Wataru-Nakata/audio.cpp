@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Self-check convert_dialogue_sidon.py on a small synthetic DialogueSidon checkpoint.
+"""Self-check convert_gguf.py on a small synthetic DialogueSidon checkpoint.
 
 Builds the real upstream modules (HF w2v-BERT with PEFT LoRA, the DiT head from
 a Sidon checkout, DAC's weight-normed decoder) at reduced width, saves them in
@@ -109,7 +109,7 @@ def run_converted_decoder(tensors, config, latents):
 
 
 def convert(args):
-    subprocess.run([sys.executable, str(HERE / "convert_dialogue_sidon.py"), *args], check=True)
+    subprocess.run([sys.executable, str(HERE / "convert_gguf.py"), *args], check=True)
 
 
 def main():
@@ -125,7 +125,7 @@ def main():
     for name, parameter in student.named_parameters():
         if "lora_B" in name:
             nn.init.normal_(parameter, std=0.02)
-    latent_dim = 16
+    latent_dim = 32
     linear1, linear2 = nn.Linear(128, latent_dim), nn.Linear(128, latent_dim)
     head = DiffusionTransformerHead(latent_size=2 * latent_dim, cond_size=128 + 2 * latent_dim,
                                     hidden_size=128, num_layers=2, num_heads=2, use_positional=True)
