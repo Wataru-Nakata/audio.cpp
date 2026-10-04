@@ -9,6 +9,7 @@ converted tensors reproduce the PyTorch modules' outputs.
 
 import argparse
 import ast
+import io
 import importlib.util
 import json
 import math
@@ -16,6 +17,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import zipfile
 
 import torch
 import torch.nn as nn
@@ -190,6 +192,16 @@ def main():
         sources = [("lightning", ["--checkpoint", str(directory / "model.ckpt")])]
         if exported:
             sources.append(("export", ["--export-dir", str(export_dir), "--num-heads", "2"]))
+            # The released bundle uses the older archive layout with a pickled weights payload.
+            legacy_dir = directory / "export-legacy"
+            legacy_dir.mkdir()
+            (legacy_dir / "metadata.json").write_text((export_dir / "metadata.json").read_text())
+            for filename in ("ssl_encoder.pt2", "diffusion_head.pt2", "vae_decoder.pt2"):
+                buffer = io.BytesIO()
+                torch.save(dict(torch.export.load(str(export_dir / filename)).state_dict), buffer)
+                with zipfile.ZipFile(legacy_dir / filename, "w") as archive:
+                    archive.writestr("archive/data/weights/model.pt", buffer.getvalue())
+            sources.append(("legacy", ["--export-dir", str(legacy_dir), "--num-heads", "2"]))
         for label, source_args in sources:
             out = directory / f"out-{label}"
             convert([*source_args, "--output-dir", str(out)])

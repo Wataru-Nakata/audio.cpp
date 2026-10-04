@@ -19,11 +19,13 @@ to ``--output-dir``; ``--gguf`` additionally packages a GGUF with
 
 import argparse
 from collections import defaultdict
+import io
 import json
 import math
 from pathlib import Path
 import re
 import subprocess
+import zipfile
 
 import torch
 from safetensors.torch import save_file
@@ -129,6 +131,19 @@ def load_lightning(path):
     return state, meta
 
 
+def read_export_weights(path):
+    """Load a .pt2 archive's weights on CPU without rebuilding its graph.
+
+    The released bundle (torch 2.8) stores a pickled ``data/weights/model.pt``
+    with CUDA storages, which ``torch.export.load`` cannot place on a CPU-only host.
+    """
+    with zipfile.ZipFile(path) as archive:
+        legacy = [name for name in archive.namelist() if name.endswith("data/weights/model.pt")]
+        if legacy:
+            return torch.load(io.BytesIO(archive.read(legacy[0])), map_location="cpu", weights_only=True)
+    return {name: value.cpu() for name, value in torch.export.load(str(path)).state_dict.items()}
+
+
 def load_export(directory):
     state = {}
     for filename, prefixes in (
@@ -136,8 +151,7 @@ def load_export(directory):
         ("diffusion_head.pt2", {"": HEAD}),
         ("vae_decoder.pt2", {"decoder.": "vae.decoder."}),
     ):
-        program = torch.export.load(str(directory / filename))
-        for name, value in program.state_dict.items():
+        for name, value in read_export_weights(directory / filename).items():
             for source, target in prefixes.items():
                 if name.startswith(source):
                     state[target + name[len(source):]] = value
@@ -153,7 +167,9 @@ def load_export(directory):
     meta = {
         "source": str(directory),
         "sample_rate": int(metadata.get("sample_rate", 24000)),
-        "num_heads": None,
+        # The released head is 768 hidden / 12 heads; the count only appears in the
+        # exported graph (view(1, T, 12, 64)), not in the weights.
+        "num_heads": 12,
         # Every released DialogueSidon config trains the head with RoPE.
         "use_rope": True,
         "latent_norm_enabled": True,
