@@ -1,0 +1,19 @@
+{
+  "cases": [
+    {
+      "id": "dialogue_sidon_offline_separate",
+      "coverage": "Two-speaker separation, warmed graph reuse, and input-shape changes in one session",
+      "family": "dialogue_sidon",
+      "model": "DialogueSidon-GGUF/dialogue-sidon-f32.gguf",
+      "task": "sep",
+      "mode": "offline",
+      "outputs": ["named_audio"],
+      "requests": [
+        {"id": "cold", "audio": "assets/resources/four_speaker_short.wav"},
+        {"id": "warm01", "audio": "assets/resources/four_speaker_short.wav"},
+        {"id": "different_shape", "audio": "assets/resources/a.wav"},
+        {"id": "original_shape", "audio": "assets/resources/four_speaker_short.wav"}
+      ]
+    }
+  ]
+}

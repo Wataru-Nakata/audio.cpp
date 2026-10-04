@@ -924,6 +924,18 @@ audiocpp_add_model(piper_tts
         engine::models::piper_tts::make_piper_tts_loader
 )
 
+audiocpp_add_model(dialogue_sidon
+    SOURCES
+        src/community_models/dialogue_sidon/frontend.cpp
+        src/community_models/dialogue_sidon/scheduler.cpp
+        src/community_models/dialogue_sidon/runtime.cpp
+        src/community_models/dialogue_sidon/session.cpp
+    INCLUDES
+        engine/community_models/dialogue_sidon/session.h
+    LOADERS
+        engine::community_models::dialogue_sidon::make_dialogue_sidon_loader
+)
+
 audiocpp_add_model(kitten_tts2
     SOURCES
         src/community_models/kitten_tts2/session.cpp

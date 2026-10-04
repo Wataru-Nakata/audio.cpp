@@ -8,6 +8,7 @@
 | SAM Audio | `sam_audio` | `s2s` prompt-conditioned separation | [SAM Audio](models/sam_audio.md) |
 | RE-USE | `reuse` | `s2s` speech restoration | [RE-USE](community_models/reuse.md) |
 | Sidon | `sidon` | `s2s` single-speaker speech restoration | [Sidon](models/sidon.md) |
+| DialogueSidon | `dialogue_sidon` | `sep` two-speaker dialogue separation and restoration | [DialogueSidon](community_models/dialogue_sidon.md) |
 | AudioSR | `audiosr` | `s2s` audio super-resolution | [AudioSR](#audiosr) |
 | UniverSR | `universr` | `s2s` audio/speech super-resolution | [UniverSR](models/universr.md) |
 | ControlFoley | `controlfoley` | `gen` Foley/SFX generation | [ControlFoley](#controlfoley) |
